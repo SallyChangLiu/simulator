@@ -68,9 +68,10 @@ namespace ns3
         Ipv4Address destAddr = m_destAddress[idx];
 
         Ptr<SamplesRoutingPacket> p = CreateObject<SamplesRoutingPacket>(psize, m_myAddress, destAddr);
-        //TODO:call m_router func to send packet p
+        p->SetCreateTime(Simulator::Now());
+        m_router->HandleMsg(p);
 
-        Simulator::Schedule(m_sentInterval, &StartApplication, psize, this); //call for next send event
+        Simulator::Schedule(m_sentInterval, &SamplesRoutingApp::StartApplication, psize, this); //call for next send event
     }
 
     //TODO:fix

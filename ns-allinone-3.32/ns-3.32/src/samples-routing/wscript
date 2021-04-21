@@ -2,35 +2,31 @@
 
 
 def build(bld):
-    module = bld.create_ns3_module('point-to-point', ['network'])
+    module = bld.create_ns3_module('samples-routing', ['network'])
     module.source = [
-        'model/app.cc',
-        'model/point-to-point-channel.cc',
-        'model/ppp-header.cc',
-        'helper/point-to-point-helper.cc',
+        'model/samples-routing-app.cc',
+        'model/samples-routing-channel.cc',
+        'model/samples-routing-net-device.cc',
+        'model/samples-routing-packet.cc',
+        'model/samples-routing-queue.cc',
+        'model/samples-routing-router.cc',
         ]
     
-    module_test = bld.create_ns3_module_test_library('point-to-point')
+    module_test = bld.create_ns3_module_test_library('samples-routing')
     module_test.source = [
-        'test/point-to-point-test.cc',
+        'test/samples-routing-test.cc',
         ]
-
-    # Tests encapsulating example programs should be listed here
-    if (bld.env['ENABLE_EXAMPLES']):
-        module_test.source.extend([
-        #   'test/point-to-point-examples-test-suite.cc',
-            ])
     
     headers = bld(features='ns3header')
-    headers.module = 'point-to-point'
+    headers.module = 'samples-routing'
     headers.source = [
-        'model/app.h',
-        'model/point-to-point-channel.h',
-        'model/ppp-header.h',
-        'helper/point-to-point-helper.h',
+        'model/samples-routing-app.h',
+        'model/samples-routing-channel.h',
+        'model/samples-routing-net-device.h',
+        'model/samples-routing-packet.h',
+        'model/samples-routing-queue.h',
+        'model/samples-routing-router.h',
         ]
-    if bld.env['ENABLE_MPI']:
-        headers.source.append('model/point-to-point-remote-channel.h')
 
     if (bld.env['ENABLE_EXAMPLES']):
         bld.recurse('examples')

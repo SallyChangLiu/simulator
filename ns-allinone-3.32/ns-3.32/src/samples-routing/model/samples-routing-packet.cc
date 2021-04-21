@@ -52,4 +52,75 @@ namespace ns3
         NS_LOG_FUNCTION(this << psize << sIP << dIP);
     }
 
+    void SamplesRoutingPacket::SetSize(uint32_t psiz)
+    {
+        NS_LOG_FUNCTION(psiz);
+
+        m_size = psiz;
+    }
+
+    uint32_t SamplesRoutingPacket::GetSize()
+    {
+        return m_size;
+    }
+
+    void SamplesRoutingPacket::SetSourceIp(Ipv4Address sIp)
+    {
+        NS_LOG_FUNCTION(sIp);
+
+        m_sIp = sIp;
+    }
+
+    Ipv4Address SamplesRoutingPacket::GetSourceIp()
+    {
+        return m_sIp;
+    }
+
+    void SamplesRoutingPacket::SetDstIp(Ipv4Address dIp)
+    {
+        NS_LOG_FUNCTION(dIp);
+
+        m_dIp = dIp;
+    }
+
+    Ipv4Address SamplesRoutingPacket::GetDstIp()
+    {
+        return m_dIp;
+    }
+
+    void SamplesRoutingPacket::SetHopCount(uint32_t c)
+    {
+        NS_LOG_FUNCTION(c);
+
+        m_hopCount = c;
+    }
+
+    uint32_t SamplesRoutingPacket::GetHopCount()
+    {
+        return m_hopCount;
+    }
+
+    void SamplesRoutingPacket::SetCreateTime(Time t)
+    {
+        NS_LOG_FUNCTION(t);
+
+        m_createTime = t;
+    }
+
+    Time SamplesRoutingPacket::GetCreateTime()
+    {
+        return m_createTime;
+    }
+
+    void SamplesRoutingPacket::SetInTime(Time t)
+    {
+        NS_LOG_FUNCTION(t);
+
+        m_inTime = t;
+    }
+
+    Time SamplesRoutingPacket::GetInTime()
+    {
+        return m_inTime;
+    }
 } // namespace ns3

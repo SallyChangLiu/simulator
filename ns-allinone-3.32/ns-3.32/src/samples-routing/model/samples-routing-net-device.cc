@@ -32,6 +32,7 @@
 #include "samples-routing-channel.h"
 #include "samples-routing-packet.h"
 #include "samples-routing-net-device.h"
+#include "samples-routing-queue.h"
 
 namespace ns3
 {
@@ -51,14 +52,15 @@ namespace ns3
                                               MakeMac48AddressChecker())
                                 .AddAttribute("TxQueue", "A queue to use as the transmit queue in the device.",
                                               PointerValue(), MakePointerAccessor(&SamplesRoutingNetDevice::m_queue),
-                                              MakePointerChecker<Queue<SamplesRoutingPacket>>());
+                                              MakePointerChecker<Queue<SamplesRoutingPacket>>())
+                                .AddAttribute("DataRate", "The default data rate for point to point links",
+                                              DataRateValue(DataRate("32768b/s")),
+                                              MakeDataRateAccessor(&SamplesRoutingNetDevice::m_rate), MakeDataRateChecker());
 
         return tid;
     }
 
     SamplesRoutingNetDevice::SamplesRoutingNetDevice()
-        : m_channel(0),
-          m_linkUp(false)
     {
         NS_LOG_FUNCTION(this);
     }
@@ -82,31 +84,30 @@ namespace ns3
         return m_queue;
     }
 
-    bool Attach(Ptr<SamplesRoutingChannel> ch)
+    void SamplesRoutingNetDevice::TransmitStart(Ptr<SamplesRoutingPacket> p)
     {
-        NS_LOG_FUNCTION(this << &ch);
-
-        m_channel = ch;
-
-        //TODO:m_channel->Attach (this);
-
-        return true;
+        NS_LOG_FUNCTION(this << p);
+        //TODO:m_queue push in the packet
     }
-
-    void TransmitStart(Ptr<SamplesRoutingPacket> p)
+    void SamplesRoutingNetDevice::Receive(Ptr<SamplesRoutingPacket> p)
     {
         NS_LOG_FUNCTION(this << p);
 
-        bool result = m_channel->TransmitStart(p, this, txTime);
-
-        return result;
-    }
-    void Receive (Ptr<SamplesRoutingPacket> p)
-    {
-        NS_LOG_FUNCTION (this << p);
-
         uint16_t protocol = 0;
 
-        m_rxCallback (this, p, protocol, GetRemote ()); // Other protocols
+        //TODO: rigister call back (app receiver)
+        //m_rxCallback(this, p, protocol, GetRemote()); // Other protocols
     }
+
+    void SamplesRoutingNetDevice::SetDataRate(DataRate rate)
+    {
+        NS_LOG_FUNCTION(this << rate);
+        m_rate = rate;
+    }
+
+    DataRate SamplesRoutingNetDevice::GetDataRate()
+    {
+        return m_rate;
+    }
+
 } // namespace ns3
