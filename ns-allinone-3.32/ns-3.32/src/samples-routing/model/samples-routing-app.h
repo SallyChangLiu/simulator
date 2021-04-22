@@ -26,6 +26,7 @@
 #include "ns3/ptr.h"
 #include "ns3/node.h"
 #include "ns3/ipv4-address.h"
+#include "ns3/traced-callback.h"
 #include "ns3/core-module.h"
 #include "samples-routing-net-device.h"
 #include "samples-routing-router.h"
@@ -33,6 +34,9 @@
 
 namespace ns3
 {
+    //template <typename Item>
+    class SamplesRoutingRouter;
+    class SamplesRoutingPacket;
     /**
      * \ingroup samples-routing
      * \brief The samples-routing-app class is used for generating pacekts

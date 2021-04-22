@@ -71,7 +71,7 @@ namespace ns3
         p->SetCreateTime(Simulator::Now());
         m_router->HandleMsg(p);
 
-        Simulator::Schedule(m_sentInterval, &SamplesRoutingApp::StartApplication, psize, this); //call for next send event
+        Simulator::Schedule(m_sentInterval, &SamplesRoutingApp::StartApplication, this, psize); //call for next send event
     }
 
     //TODO:fix

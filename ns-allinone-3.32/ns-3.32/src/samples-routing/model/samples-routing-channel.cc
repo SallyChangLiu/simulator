@@ -20,7 +20,6 @@
  */
 
 #include "samples-routing-channel.h"
-#include "samples-routing-queue.h"
 
 namespace ns3
 {
@@ -38,24 +37,24 @@ namespace ns3
         return tid;
     }
 
-    SamplesRoutingChannel::SamplesRoutingChannel() : m_delay(Seconds(0.)), m_nQueues(0)
+    SamplesRoutingChannel::SamplesRoutingChannel() : m_delay(Seconds(0.)), m_nDevices(0)
     {
         NS_LOG_FUNCTION_NOARGS();
     }
 
     void
-    SamplesRoutingChannel::Attach(Ptr<SamplesRoutingQueue> queue)
+    SamplesRoutingChannel::Attach(Ptr<SamplesRoutingNetDevice> device)
     {
-        NS_LOG_FUNCTION(this << queue);
-        NS_ASSERT_MSG(m_nQueues < N_QUEUES, "Only two devices permitted");
-        NS_ASSERT(queue != 0);
+        NS_LOG_FUNCTION(this << device);
+        NS_ASSERT_MSG(m_nDevices < N_DEVICES, "Only two devices permitted");
+        NS_ASSERT(device != 0);
 
-        m_link[m_nQueues++].m_src = queue;
+        m_link[m_nDevices++].m_src = device;
         //
         // If we have both devices connected to the channel, then finish introducing
         // the two halves and set the links to IDLE.
         //
-        if (m_nQueues == N_QUEUES)
+        if (m_nDevices == N_DEVICES)
         {
             m_link[0].m_dst = m_link[1].m_src;
             m_link[1].m_dst = m_link[0].m_src;
@@ -65,7 +64,7 @@ namespace ns3
     }
 
     bool
-    SamplesRoutingChannel::TransmitStart(Ptr<const SamplesRoutingPacket> p, Ptr<SamplesRoutingQueue> src, Time txTime)
+    SamplesRoutingChannel::TransmitStart(Ptr<SamplesRoutingPacket> p, Ptr<SamplesRoutingNetDevice> src, Time txTime)
     {
         NS_LOG_FUNCTION(this << p << src);
 
@@ -74,9 +73,56 @@ namespace ns3
 
         uint32_t wire = src == m_link[0].m_src ? 0 : 1;
 
-        Simulator::Schedule(txTime + m_delay, &SamplesRoutingQueue::HandleRxMsg, m_link[wire].m_dst, p);
+        Simulator::Schedule(txTime + m_delay, &SamplesRoutingNetDevice::TransmitStart, m_link[wire].m_dst, p);
         return true;
     }
 
-    
+    std::size_t
+    SamplesRoutingChannel::GetNDevices(void) const
+    {
+        NS_LOG_FUNCTION_NOARGS();
+        return m_nDevices;
+    }
+
+    Ptr<SamplesRoutingNetDevice>
+    SamplesRoutingChannel::GetSamplesRoutingNetDevice(std::size_t i) const
+    {
+        NS_LOG_FUNCTION_NOARGS();
+        NS_ASSERT(i < 2);
+        return m_link[i].m_src;
+    }
+
+    Ptr<NetDevice>
+    SamplesRoutingChannel::GetDevice(std::size_t i) const
+    {
+        NS_LOG_FUNCTION_NOARGS();
+        return GetSamplesRoutingNetDevice(i);
+    }
+
+    Time
+    SamplesRoutingChannel::GetDelay(void) const
+    {
+        return m_delay;
+    }
+
+    Ptr<SamplesRoutingNetDevice>
+    SamplesRoutingChannel::GetSource(uint32_t i) const
+    {
+        return m_link[i].m_src;
+    }
+
+    Ptr<SamplesRoutingNetDevice>
+    SamplesRoutingChannel::GetDestination(uint32_t i) const
+    {
+        return m_link[i].m_dst;
+    }
+
+    bool
+    SamplesRoutingChannel::IsInitialized(void) const
+    {
+        NS_ASSERT(m_link[0].m_state != INITIALIZING);
+        NS_ASSERT(m_link[1].m_state != INITIALIZING);
+        return true;
+    }
+
 } // namespace ns3

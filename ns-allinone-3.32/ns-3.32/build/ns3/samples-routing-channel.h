@@ -23,11 +23,12 @@
 #define SAMPLES_ROUTING_CHANNEL_H
 
 #include "samples-routing-net-device.h"
-#include "samples-routing-queue.h"
 #include "samples-routing-packet.h"
 
 namespace ns3
 {
+    class SamplesRoutingNetDevice;
+    class SamplesRoutingPacket;
     class SamplesRoutingChannel : public Channel
     {
     public:
@@ -50,7 +51,7 @@ namespace ns3
          * \brief Attach a given queue to this channel
          * \param queue pointer to the queue to attach to the channel
          */
-        void Attach(Ptr<SamplesRoutingQueue> queue);
+        void Attach(Ptr<SamplesRoutingNetDevice> device);
 
         /**
          * \brief Transmit a packet over this channel
@@ -59,7 +60,27 @@ namespace ns3
          * \param txTime Transmit time to apply
          * \returns true if successful (currently always true)
          */
-        bool TransmitStart(Ptr<const SamplesRoutingPacket> p, Ptr<SamplesRoutingQueue> src, Time txTime);
+        bool TransmitStart(Ptr<SamplesRoutingPacket> p, Ptr<SamplesRoutingNetDevice> src, Time txTime);
+
+        /**
+         * \brief Get number of devices on this channel
+         * \returns number of devices on this channel
+         */
+        virtual std::size_t GetNDevices (void) const;
+
+        /**
+         * \brief Get DpskNetDevice corresponding to index i on this channel
+         * \param i Index number of the device requested
+         * \returns Ptr to DpskNetDevice requested
+         */
+        Ptr<SamplesRoutingNetDevice> GetSamplesRoutingNetDevice (std::size_t i) const;
+
+        /**
+         * \brief Get NetDevice corresponding to index i on this channel
+         * \param i Index number of the device requested
+         * \returns Ptr to NetDevice requested
+         */
+        virtual Ptr<NetDevice> GetDevice (std::size_t i) const;
 
     protected:
         /**
@@ -68,10 +89,34 @@ namespace ns3
          */
         Time GetDelay(void) const;
 
+        
+
+        /**
+         * \brief Check to make sure the link is initialized
+         * \returns true if initialized, asserts otherwise
+         */
+        bool IsInitialized (void) const;
+
+        /**
+         * \brief Get the net-device source
+         * \param i the link requested
+         * \returns Ptr to DpskNetDevice source for the
+         * specified link
+         */
+        Ptr<SamplesRoutingNetDevice> GetSource (uint32_t i) const;
+
+        /**
+         * \brief Get the net-device destination
+         * \param i the link requested
+         * \returns Ptr to DpskNetDevice destination for
+         * the specified link
+         */
+        Ptr<SamplesRoutingNetDevice> GetDestination (uint32_t i) const;
+
     private:
-        static const std::size_t N_QUEUES = 2;
+        static const std::size_t N_DEVICES = 2;
         Time m_delay;          //!< Propagation delay
-        std::size_t m_nQueues; //!< queues of this channel
+        std::size_t m_nDevices; //!< devices of this channel
 
         /** \brief Wire states
          *
@@ -102,11 +147,11 @@ namespace ns3
             }
 
             WireState m_state;              //!< State of the link
-            Ptr<SamplesRoutingQueue> m_src; //!< First NetDevice
-            Ptr<SamplesRoutingQueue> m_dst; //!< Second NetDevice
+            Ptr<SamplesRoutingNetDevice> m_src; //!< First NetDevice
+            Ptr<SamplesRoutingNetDevice> m_dst; //!< Second NetDevice
         };
 
-        Link m_link[N_QUEUES]; //!< Link model
+        Link m_link[N_DEVICES]; //!< Link model
     };
 } // namespace ns3
 

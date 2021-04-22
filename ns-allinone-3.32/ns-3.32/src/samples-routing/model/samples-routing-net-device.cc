@@ -50,9 +50,6 @@ namespace ns3
                                 .AddAttribute("Address", "The MAC address of this device.", Mac48AddressValue(Mac48Address("ff:ff:ff:ff:ff:ff")),
                                               MakeMac48AddressAccessor(&SamplesRoutingNetDevice::m_address),
                                               MakeMac48AddressChecker())
-                                .AddAttribute("TxQueue", "A queue to use as the transmit queue in the device.",
-                                              PointerValue(), MakePointerAccessor(&SamplesRoutingNetDevice::m_queue),
-                                              MakePointerChecker<Queue<SamplesRoutingPacket>>())
                                 .AddAttribute("DataRate", "The default data rate for point to point links",
                                               DataRateValue(DataRate("32768b/s")),
                                               MakeDataRateAccessor(&SamplesRoutingNetDevice::m_rate), MakeDataRateChecker());
@@ -63,6 +60,9 @@ namespace ns3
     SamplesRoutingNetDevice::SamplesRoutingNetDevice()
     {
         NS_LOG_FUNCTION(this);
+        m_isLinkUp = false;
+        m_isBusy = false;
+        m_channel = 0;
     }
 
     SamplesRoutingNetDevice::~SamplesRoutingNetDevice()
@@ -70,14 +70,24 @@ namespace ns3
         NS_LOG_FUNCTION(this);
     }
 
+    bool SamplesRoutingNetDevice::Attach(Ptr<SamplesRoutingChannel> ch)
+    {
+        NS_LOG_FUNCTION(this << &ch);
+
+        m_channel = ch;
+        m_isLinkUp = true;
+        m_channel->Attach(this);
+        return true;
+    }
+
     void
-    SamplesRoutingNetDevice::SetQueue(Ptr<Queue<SamplesRoutingPacket>> q)
+    SamplesRoutingNetDevice::SetQueue(Ptr<SamplesRoutingQueue> q)
     {
         NS_LOG_FUNCTION(this << q);
         m_queue = q;
     }
 
-    Ptr<Queue<SamplesRoutingPacket>>
+    Ptr<SamplesRoutingQueue>
     SamplesRoutingNetDevice::GetQueue(void) const
     {
         NS_LOG_FUNCTION(this);
@@ -87,16 +97,45 @@ namespace ns3
     void SamplesRoutingNetDevice::TransmitStart(Ptr<SamplesRoutingPacket> p)
     {
         NS_LOG_FUNCTION(this << p);
-        //TODO:m_queue push in the packet
+        if (m_isBusy == false) //we are not busy can send the packet right now
+        {
+            m_isBusy = true;
+            Time txTime = m_rate.CalculateBytesTxTime(p->GetSize());
+
+            Simulator::Schedule(txTime, &SamplesRoutingNetDevice::CompleteTransimit, this);
+            //TODO:call for channel transmit func
+            m_channel->TransmitStart(p, this, txTime);
+        }
+        else //we are busy now, so just inqueue this packet
+        {
+            m_queue->InqueuPkg(p);
+        }
     }
+
+    void SamplesRoutingNetDevice::CompleteTransimit()
+    {
+        m_isBusy = false;
+
+        if (m_queue->GetQueueLength() > 0)
+        {
+            Ptr<SamplesRoutingPacket> p = m_queue->DequeuePkg();
+
+            TransmitStart(p);
+        }
+    }
+
     void SamplesRoutingNetDevice::Receive(Ptr<SamplesRoutingPacket> p)
     {
         NS_LOG_FUNCTION(this << p);
 
-        uint16_t protocol = 0;
-
         //TODO: rigister call back (app receiver)
         //m_rxCallback(this, p, protocol, GetRemote()); // Other protocols
+    }
+
+    void
+    SamplesRoutingNetDevice::SetReceiveCallback(NetDevice::ReceiveCallback cb)
+    {
+        m_rxCallback = cb;
     }
 
     void SamplesRoutingNetDevice::SetDataRate(DataRate rate)
@@ -105,9 +144,174 @@ namespace ns3
         m_rate = rate;
     }
 
-    DataRate SamplesRoutingNetDevice::GetDataRate()
+    DataRate SamplesRoutingNetDevice::GetDataRate() const
     {
         return m_rate;
+    }
+
+    uint32_t
+    SamplesRoutingNetDevice::GetIfIndex(void) const
+    {
+        return m_ifIndex;
+    }
+
+    void SamplesRoutingNetDevice::SetIfIndex(const uint32_t index)
+    {
+        NS_LOG_FUNCTION(this);
+        m_ifIndex = index;
+    }
+
+    Ptr<Channel>
+    SamplesRoutingNetDevice::GetChannel(void) const
+    {
+        return m_channel;
+    }
+
+    Address
+    SamplesRoutingNetDevice::GetAddress(void) const
+    {
+        return m_address;
+    }
+
+    void SamplesRoutingNetDevice::SetAddress(Address address)
+    {
+        NS_LOG_FUNCTION(this << address);
+        m_address = Mac48Address::ConvertFrom(address);
+    }
+
+    bool
+    SamplesRoutingNetDevice::IsLinkUp(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return m_isLinkUp;
+    }
+
+    void SamplesRoutingNetDevice::AddLinkChangeCallback(Callback<void> callback)
+    {
+        NS_LOG_FUNCTION(this);
+        m_linkChangeCallbacks.ConnectWithoutContext(callback);
+    }
+
+    bool
+    SamplesRoutingNetDevice::IsBroadcast(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return true;
+    }
+
+    Address
+    SamplesRoutingNetDevice::GetBroadcast(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return Mac48Address("ff:ff:ff:ff:ff:ff");
+    }
+
+    bool
+    SamplesRoutingNetDevice::IsMulticast(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return true;
+    }
+
+    Address
+    SamplesRoutingNetDevice::GetMulticast(Ipv4Address multicastGroup) const
+    {
+        NS_LOG_FUNCTION(this);
+        return Mac48Address("01:00:5e:00:00:00");
+    }
+
+    Address
+    SamplesRoutingNetDevice::GetMulticast(Ipv6Address addr) const
+    {
+        NS_LOG_FUNCTION(this << addr);
+        return Mac48Address("33:33:00:00:00:00");
+    }
+
+    bool
+    SamplesRoutingNetDevice::IsPointToPoint(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return true;
+    }
+
+    bool
+    SamplesRoutingNetDevice::IsBridge(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return false;
+    }
+
+    bool SamplesRoutingNetDevice::Send(Ptr<Packet> packet, const Address &dest, uint16_t protocolNumber)
+    {
+        NS_LOG_FUNCTION(this << packet << dest << protocolNumber);
+        return SendFrom(packet, m_address, dest, protocolNumber);
+    }
+
+    bool SamplesRoutingNetDevice::SendFrom(Ptr<Packet> packet, const Address &source, const Address &dest,
+                                           uint16_t protocolNumber)
+    {
+        //this function is not used by now
+        return false;
+    }
+
+    void SamplesRoutingNetDevice::SetNode(Ptr<Node> node)
+    {
+        NS_LOG_FUNCTION(this);
+        m_node = node;
+    }
+
+    Ptr<Node>
+    SamplesRoutingNetDevice::GetNode(void) const
+    {
+        return m_node;
+    }
+
+    bool SamplesRoutingNetDevice::NeedsArp(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return false;
+    }
+
+    void SamplesRoutingNetDevice::SetPromiscReceiveCallback(PromiscReceiveCallback cb)
+    {
+        m_promiscCallback = cb;
+    }
+
+    bool
+    SamplesRoutingNetDevice::SupportsSendFrom(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return true;
+    }
+
+    Address
+    SamplesRoutingNetDevice::GetRemote(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        NS_ASSERT(m_channel->GetNDevices() == 2);
+        for (std::size_t i = 0; i < m_channel->GetNDevices(); ++i)
+        {
+            Ptr<NetDevice> tmp = m_channel->GetDevice(i);
+            if (tmp != this)
+            {
+                return tmp->GetAddress();
+            }
+        }
+        NS_ASSERT(false);
+        // quiet compiler.
+        return Address();
+    }
+
+    bool SamplesRoutingNetDevice::SetMtu(const uint16_t mtu)
+    {
+        return true;
+    }
+
+    uint16_t
+    SamplesRoutingNetDevice::GetMtu(void) const
+    {
+        NS_LOG_FUNCTION(this);
+        return 0;
     }
 
 } // namespace ns3

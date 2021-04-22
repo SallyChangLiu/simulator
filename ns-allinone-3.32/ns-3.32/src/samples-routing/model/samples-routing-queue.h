@@ -29,6 +29,9 @@
 
 namespace ns3
 {
+    class SamplesRoutingPackt;
+    class SamplesRoutingNetDevice;
+    class SamplesRoutingChannel;
 
     class SamplesRoutingQueue : public Object
     {
@@ -36,46 +39,20 @@ namespace ns3
         static TypeId GetTypeId(void);
         SamplesRoutingQueue();
         ~SamplesRoutingQueue();
-        // void InQueuePkg(Ptr<SamplesRoutingPacket> p);
-        // Ptr<SamplesRoutingPacket> PopQueuePkg();
-        // uint32_t GetQueueLength();
 
-        /**
-         * Attach the device to a channel.
-         *
-         * \param ch Ptr to the channel to which this object is being attached.
-         * \return true if the operation was successful (always true actually)
-         */
-        bool Attach(Ptr<SamplesRoutingChannel> ch);
 
-        /**
-         * this function handle tx pkg
-         * \param p the packet that needs to be sent
-         */
-        void HandleTxMsg(Ptr<SamplesRoutingPacket> p);
+        Ptr<SamplesRoutingPacket> DequeuePkg();
+        void InqueuPkg(Ptr<SamplesRoutingPacket> p);
 
-        /**
-         * this function is called after receiving a packet
-         */
-        void HandleRxMsg(Ptr<SamplesRoutingPacket> p);
-        
-        /**
-         * start to transimit a packet
-         */
-        void StartTransmitting(Ptr<SamplesRoutingPacket> p);
+        uint32_t GetQueueLength();
 
-        void CompleteTransimit();
-
-    public:
-        Ptr<SamplesRoutingChannel> m_channel;
+    private:
         std::vector<Ptr<SamplesRoutingPacket>> m_queue;
         Ptr<SamplesRoutingNetDevice> m_dev;
         uint32_t m_frameCapacity; //the queue's capacityI
         uint32_t m_txBytes;
         uint32_t m_rxBytes;
         uint32_t m_dropBytes;
-        bool m_isBusy;
-        bool m_isLinkUp;
     };
 } // namespace ns3
 

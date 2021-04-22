@@ -39,84 +39,55 @@ namespace ns3
         return tid;
     }
 
-    SamplesRoutingQueue::SamplesRoutingQueue() : m_dropBytes(0), m_isBusy(false), m_isLinkUp(false), m_rxBytes(0), m_txBytes(0)
+    SamplesRoutingQueue::SamplesRoutingQueue()
     {
         NS_LOG_FUNCTION(this);
+        m_dropBytes = 0;
+        m_rxBytes = 0;
+        m_txBytes = 0;
         m_queue.clear();
-        m_channel = NULL;
     }
     SamplesRoutingQueue::~SamplesRoutingQueue()
     {
         NS_LOG_FUNCTION(this);
-        m_channel = NULL;
         m_queue.clear();
     }
 
-    bool SamplesRoutingQueue::Attach(Ptr<SamplesRoutingChannel> ch)
+    Ptr<SamplesRoutingPacket> SamplesRoutingQueue::DequeuePkg()
     {
-        NS_LOG_FUNCTION(this << &ch);
-
-        m_channel = ch;
-        m_isLinkUp = true;
-        m_channel->Attach(this);
-    }
-
-    void SamplesRoutingQueue::HandleTxMsg(Ptr<SamplesRoutingPacket> p)
-    {
-        if (m_isBusy == true) // We are currently busy, so just queue up the packet.
-        {
-            if (m_frameCapacity && m_queue.size() >= m_frameCapacity) //transmitter busy and queue full: discarding
-            {
-                m_dropBytes += p->GetSize();
-                //TODO: drop bytes signal
-                return;
-            }
-            else //queuing up
-            {
-                Time inTime = Simulator::Now();
-                p->SetInTime(inTime);
-                m_queue.push_back(p);
-                //TODO: queue length signal
-            }
-        }
-        else //we are not busy can sent the packet right now
-        {
-            //TODO: set queuing time = 0
-            StartTransmitting(p);
-        }
-    }
-
-    void SamplesRoutingQueue::HandleRxMsg(Ptr<SamplesRoutingPacket> p)
-    {
-        m_rxBytes += p->GetSize();
-        //TODO: rx bytes signal
-
-        m_dev->Receive(p);//call for dev receiver (pass up)
-    }
-
-    void SamplesRoutingQueue::StartTransmitting(Ptr<SamplesRoutingPacket> p)
-    {
-        m_isBusy = true;
-        Time txTime = m_dev->GetDataRate().CalculateBytesTxTime(p->GetSize());
-
-        Simulator::Schedule(txTime, &SamplesRoutingQueue::CompleteTransimit, this);
-        //TODO:call for channel transmit func
-        m_channel->TransmitStart (p, this, txTime);
-    }
-
-    void SamplesRoutingQueue::CompleteTransimit()
-    {
-        m_isBusy = false;
-
-        if(m_queue.size() > 0)
+        if (m_queue.size() > 0)
         {
             Ptr<SamplesRoutingPacket> p = m_queue.front();
             m_queue.pop_back();
             //TODO: queue length signal
-
-            //TODO: caculate the queuing time for p
-            StartTransmitting(p);
+            return p;
         }
-        
+        else
+        {
+            return 0;
+        }
+    }
+    void SamplesRoutingQueue::InqueuPkg(Ptr<SamplesRoutingPacket> p)
+    {
+        if (m_frameCapacity && m_queue.size() >= m_frameCapacity) //transmitter busy and queue full: discarding
+        {
+            m_dropBytes += p->GetSize();
+            //TODO: drop bytes signal
+            return;
+        }
+        else //queuing up
+        {
+            Time inTime = Simulator::Now();
+            p->SetInTime(inTime);
+            m_queue.push_back(p);
+            //TODO: queue length signal
+        }
+    }
+
+    uint32_t SamplesRoutingQueue::GetQueueLength()
+    {
+        NS_LOG_FUNCTION(this);
+
+        return m_queue.size();
     }
 } // namespace ns3

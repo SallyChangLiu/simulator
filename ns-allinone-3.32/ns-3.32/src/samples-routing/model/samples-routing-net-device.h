@@ -38,6 +38,11 @@
 
 namespace ns3
 {
+    class SamplesRoutingPacket;
+    class SamplesRoutingQueue;
+    class SamplesRoutingChannel;
+    template <typename Item>
+    class Queue;
 
     /**
      * \ingroup samples-routing
@@ -72,6 +77,14 @@ namespace ns3
         ~SamplesRoutingNetDevice();
 
         /**
+         * Attach the device to a channel.
+         *
+         * \param ch Ptr to the channel to which this object is being attached.
+         * \return true if the operation was successful (always true actually)
+         */
+        bool Attach(Ptr<SamplesRoutingChannel> ch);
+
+        /**
          * Attach a queue to the SamplesRoutingNetDevice.
          *
          * The SamplesRoutingNetDevice "owns" a queue that implements a queueing
@@ -79,20 +92,22 @@ namespace ns3
          *
          * \param queue Ptr to the new queue.
          */
-        void SetQueue(Ptr<Queue<SamplesRoutingPacket>> queue);
+        void SetQueue(Ptr<SamplesRoutingQueue> queue);
 
         /**
          * Get a copy of the attached Queue.
          *
          * \returns Ptr to the queue.
          */
-        Ptr<Queue<SamplesRoutingPacket>> GetQueue(void) const;
+        Ptr<SamplesRoutingQueue> GetQueue(void) const;
 
 
         /**
          * Start transmit process.
          */
         void TransmitStart(Ptr<SamplesRoutingPacket> p);
+
+        void CompleteTransimit();
 
         /**
          * Receive a packet from a connected Channel.
@@ -146,19 +161,32 @@ namespace ns3
         virtual Address GetMulticast(Ipv6Address addr) const;
 
         virtual void SetPromiscReceiveCallback(PromiscReceiveCallback cb);
-        virtual bool SupportsSendFrom(void);
+        virtual bool SupportsSendFrom(void) const;
 
-        DataRate GetDataRate();
+        DataRate GetDataRate() const;
 
         void SetDataRate(DataRate rate);
 
+        /**
+         * \returns the address of the remote device connected to this device
+         * through the Dpsk channel.
+         */
+        Address GetRemote (void) const;
+
     private:
         Ptr<SamplesRoutingQueue> m_queue;
+        Ptr<SamplesRoutingChannel> m_channel;
         Ptr<Node> m_node;
         DataRate m_rate;
         Mac48Address m_address; //!< Mac48Address of this NetDevice
+        bool m_isBusy;
+        bool m_isLinkUp;
 
         NetDevice::ReceiveCallback m_rxCallback; //!< Receive callback
+        //some values
+        uint32_t m_ifIndex; //!< Index of the interface
+        NetDevice::PromiscReceiveCallback m_promiscCallback; //!< Receive callback (promisc data)
+        TracedCallback<> m_linkChangeCallbacks; //!< Callback for the link change event
     };
 
 } // namespace ns3
