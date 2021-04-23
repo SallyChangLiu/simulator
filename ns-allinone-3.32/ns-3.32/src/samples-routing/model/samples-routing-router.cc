@@ -25,7 +25,7 @@
 #include "stdlib.h"
 #include <time.h>
 
-#define _GLIBCXX_USE_CXX11_ABI 1
+
 namespace ns3
 {
     NS_LOG_COMPONENT_DEFINE("SamplesRoutingRouter");
@@ -60,10 +60,10 @@ namespace ns3
     {
         Ipv4Address destIp = p->GetDstIp();
 
-        if (destIp == m_myAddress) //send to app receiver
+        if (destIp == m_node->GetAddress()) //send to app receiver
         {
             //TODO:record the outputIf of the packet
-            //m_rxCallBack(p);
+            m_rxCallBack(p);
         }
         else //send out
         {
@@ -82,10 +82,13 @@ namespace ns3
         m_routerTable[dstIp].push_back(outPort);
     }
 
-    // void SamplesRoutingRouter::SetupRxCallBack(RxCallBack cc)
-    // {
-    //     NS_LOG_FUNCTION(cc);
+    void SamplesRoutingRouter::SetupRxCallBack(RxCallBack cc)
+    {
+        m_rxCallBack = cc;
+    }
 
-    //     m_rxCallBack = cc;
-    // }
+    void SamplesRoutingRouter::SetNode(Ptr<SamplesRoutingNode> nd)
+    {
+        m_node = nd;
+    }
 } // namespace  ns3

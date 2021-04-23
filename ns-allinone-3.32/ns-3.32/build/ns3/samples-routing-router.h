@@ -28,16 +28,17 @@
 #include "ns3/callback.h"
 #include "samples-routing-net-device.h"
 #include "samples-routing-packet.h"
+#include "samples-routing-node.h"
 #include <vector>
 #include <map>
 
-#define _GLIBCXX_USE_CXX11_ABI 1
 namespace ns3
 {
     //template <typename Item>
     class SamplesRoutingNetDevice;
     class SamplesRoutingApp;
     class SamplesRoutingPacket;
+    class SamplesRoutingNode;
     class SamplesRoutingRouter : public Object
     {
     public:
@@ -77,21 +78,22 @@ namespace ns3
          */
         void BuildRouterTable(Ipv4Address dstIp, Ptr<SamplesRoutingNetDevice> outPort);
 
-        //typedef Callback<void,Ptr<SamplesRoutingPacket>> RxCallBack; // call back type of receiving
+        typedef Callback<void,Ptr<SamplesRoutingPacket> > RxCallBack; // call back type of receiving
 
-        // /**
-        //  * this function setup callback for receing a packet & this packet's destination is another host
-        //  * \param cc the func.
-        //  */
-        // void SetupRxCallBack(RxCallBack cc);
+        /**
+         * this function setup callback for receing a packet & this packet's destination is another host
+         * \param cc the func.
+         */
+        void SetupRxCallBack(RxCallBack cc);
+
+        void SetNode(Ptr<SamplesRoutingNode> nd);
 
     private:
         uint32_t m_dropBytes;                                                           // dropped packet byte length
-        std::map<Ipv4Address, std::vector<Ptr<SamplesRoutingNetDevice>>> m_routerTable; //dest ip ---> net device
-        Ptr<Node> m_node;
-        Ipv4Address m_myAddress;
+        std::map<Ipv4Address, std::vector< Ptr<SamplesRoutingNetDevice> > > m_routerTable; //dest ip ---> net device
+        Ptr<SamplesRoutingNode> m_node;
 
-        //RxCallBack m_rxCallBack; //call app receiver
+        RxCallBack m_rxCallBack; //call app receiver
     };
 } // namespace ns3
 

@@ -2,7 +2,7 @@
 
 
 def build(bld):
-    module = bld.create_ns3_module('samples-routing', ['network'])
+    module = bld.create_ns3_module('samples-routing', ['network','core'])
     module.source = [
         'model/samples-routing-app.cc',
         'model/samples-routing-channel.cc',
@@ -10,6 +10,7 @@ def build(bld):
         'model/samples-routing-packet.cc',
         'model/samples-routing-queue.cc',
         'model/samples-routing-router.cc',
+        'model/samples-routing-node.cc',
         ]
     
     module_test = bld.create_ns3_module_test_library('samples-routing')
@@ -26,6 +27,7 @@ def build(bld):
         'model/samples-routing-packet.h',
         'model/samples-routing-queue.h',
         'model/samples-routing-router.h',
+        'model/samples-routing-node.h',
         ]
 
     if (bld.env['ENABLE_EXAMPLES']):

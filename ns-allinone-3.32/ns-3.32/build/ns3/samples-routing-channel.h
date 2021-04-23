@@ -82,6 +82,8 @@ namespace ns3
          */
         virtual Ptr<NetDevice> GetDevice (std::size_t i) const;
 
+        void SetDelay(Time dly);
+
     protected:
         /**
          * \brief Get the delay associated with this channel

@@ -26,6 +26,7 @@
 #include "ns3/ipv4-address.h"
 #include "ns3/simulator.h"
 #include "ns3/network-module.h"
+#include "ns3/packet.h"
 
 namespace ns3
 {

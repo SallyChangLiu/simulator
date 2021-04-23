@@ -129,7 +129,8 @@ namespace ns3
         NS_LOG_FUNCTION(this << p);
 
         //TODO: rigister call back (app receiver)
-        //m_rxCallback(this, p, protocol, GetRemote()); // Other protocols
+        //m_rxCallback(this,p,0,GetRemote()) // Other protocols
+        m_receiveCallback(p);
     }
 
     void
@@ -254,16 +255,27 @@ namespace ns3
         return false;
     }
 
-    void SamplesRoutingNetDevice::SetNode(Ptr<Node> node)
+    void SamplesRoutingNetDevice::SetNode(Ptr<SamplesRoutingNode> node)
     {
         NS_LOG_FUNCTION(this);
         m_node = node;
     }
 
+    Ptr<SamplesRoutingNode>
+    SamplesRoutingNetDevice::GetNode(void)
+    {
+        return m_node;
+    }
+
+    void SamplesRoutingNetDevice::SetNode(Ptr<Node> node)
+    {
+
+    }
+
     Ptr<Node>
     SamplesRoutingNetDevice::GetNode(void) const
     {
-        return m_node;
+        return NULL;
     }
 
     bool SamplesRoutingNetDevice::NeedsArp(void) const
@@ -272,7 +284,7 @@ namespace ns3
         return false;
     }
 
-    void SamplesRoutingNetDevice::SetPromiscReceiveCallback(PromiscReceiveCallback cb)
+    void SamplesRoutingNetDevice::SetPromiscReceiveCallback(NetDevice::PromiscReceiveCallback cb)
     {
         m_promiscCallback = cb;
     }
@@ -312,6 +324,11 @@ namespace ns3
     {
         NS_LOG_FUNCTION(this);
         return 0;
+    }
+
+    void SamplesRoutingNetDevice::SetRxCallBack(ReceiveCallback cb)
+    {
+        m_receiveCallback = cb;
     }
 
 } // namespace ns3

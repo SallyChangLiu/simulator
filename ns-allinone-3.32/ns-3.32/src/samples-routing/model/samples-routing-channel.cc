@@ -73,7 +73,7 @@ namespace ns3
 
         uint32_t wire = src == m_link[0].m_src ? 0 : 1;
 
-        Simulator::Schedule(txTime + m_delay, &SamplesRoutingNetDevice::TransmitStart, m_link[wire].m_dst, p);
+        Simulator::Schedule(txTime + m_delay, &SamplesRoutingNetDevice::Receive, m_link[wire].m_dst, p);
         return true;
     }
 
@@ -97,6 +97,11 @@ namespace ns3
     {
         NS_LOG_FUNCTION_NOARGS();
         return GetSamplesRoutingNetDevice(i);
+    }
+
+    void SamplesRoutingChannel::SetDelay(Time dly)
+    {
+        m_delay = dly;
     }
 
     Time

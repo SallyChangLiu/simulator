@@ -30,6 +30,7 @@
 #include "ns3/core-module.h"
 #include "samples-routing-net-device.h"
 #include "samples-routing-router.h"
+#include "samples-routing-node.h"
 #include <vector>
 
 namespace ns3
@@ -37,6 +38,8 @@ namespace ns3
     //template <typename Item>
     class SamplesRoutingRouter;
     class SamplesRoutingPacket;
+    class SamplesRoutingNode;
+    
     /**
      * \ingroup samples-routing
      * \brief The samples-routing-app class is used for generating pacekts
@@ -60,7 +63,18 @@ namespace ns3
          */
         void SetRouter(Ptr<SamplesRoutingRouter> r);
 
-    private:
+        void SetSendInterval(Time t);
+
+        void SetNode(Ptr<SamplesRoutingNode> nd);
+
+        void SetupDestAddr(Ipv4Address dstaddr);
+
+        /**
+         * receive a packet.
+         * \param p the packet need to be received
+         */
+        void HandleRx(Ptr<SamplesRoutingPacket> p);
+
         /**
          * \brief Application specific startup code
          *
@@ -69,6 +83,10 @@ namespace ns3
          * subclasses.
          */
         void StartApplication(uint32_t psize);
+
+        void SetPkgRxCompleteTraceCallback(TracedCallback<Ptr<SamplesRoutingPacket>> cb);
+
+    private:
 
         /**
          * \brief Application specific shutdown code
@@ -80,12 +98,6 @@ namespace ns3
         void StopApplication(void);
 
         /**
-         * receive a packet.
-         * \param p the packet need to be received
-         */
-        void HandleRx(Ptr<SamplesRoutingPacket> p);
-
-        /**
          * The trace source fired for Receiving a packet.
          *
          * \param Ptr pointer of packet
@@ -94,9 +106,8 @@ namespace ns3
 
 
         std::vector<Ipv4Address> m_destAddress; //vector for pacekt destIP
-        Ptr<Node> m_node;
+        Ptr<SamplesRoutingNode> m_node;
         Ptr<SamplesRoutingRouter> m_router;
-        Ipv4Address m_myAddress;
         Time m_sentInterval;
     };
 

@@ -60,14 +60,31 @@ namespace ns3
         m_router = r;
     }
 
+    void SamplesRoutingApp::SetSendInterval(Time t)
+    {
+        NS_LOG_FUNCTION(this << t);
+        m_sentInterval = t;
+    }
+
+    void SamplesRoutingApp::SetNode(Ptr<SamplesRoutingNode> nd)
+    {
+        m_node = nd;
+    }
+
+    void SamplesRoutingApp::SetupDestAddr(Ipv4Address dstaddr)
+    {
+        m_destAddress.push_back(dstaddr);
+    }
+
     void SamplesRoutingApp::StartApplication(uint32_t psize)
     {
         srand((unsigned)time(NULL));
 
         int idx = rand() % (m_destAddress.size());
         Ipv4Address destAddr = m_destAddress[idx];
+        Ipv4Address myAddr = m_node->GetAddress();
 
-        Ptr<SamplesRoutingPacket> p = CreateObject<SamplesRoutingPacket>(psize, m_myAddress, destAddr);
+        Ptr<SamplesRoutingPacket> p = CreateObject<SamplesRoutingPacket>(psize, myAddr, destAddr);
         p->SetCreateTime(Simulator::Now());
         m_router->HandleMsg(p);
 
@@ -85,6 +102,11 @@ namespace ns3
     void SamplesRoutingApp::HandleRx(Ptr<SamplesRoutingPacket> p)
     {
         m_PacketRxCompleteTrace(p);
+    }
+
+    void SamplesRoutingApp::SetPkgRxCompleteTraceCallback(TracedCallback<Ptr<SamplesRoutingPacket>> cb)
+    {
+         m_PacketRxCompleteTrace = cb;
     }
 
 } // namespace ns3

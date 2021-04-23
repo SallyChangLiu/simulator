@@ -10,6 +10,7 @@
 #include "samples-routing-app.h"
 #include "samples-routing-channel.h"
 #include "samples-routing-net-device.h"
+#include "samples-routing-node.h"
 #include "samples-routing-packet.h"
 #include "samples-routing-queue.h"
 #include "samples-routing-router.h"

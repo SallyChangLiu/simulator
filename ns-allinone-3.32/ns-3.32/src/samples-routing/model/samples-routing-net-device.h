@@ -22,7 +22,6 @@
 #ifndef SAMPLES_ROUTING_NETDEVICE_H
 #define SAMPLES_ROUTING_NETDEVICE_H
 
-#include "ns3/address.h"
 #include "ns3/node.h"
 #include "ns3/net-device.h"
 #include "ns3/callback.h"
@@ -34,15 +33,17 @@
 #include "samples-routing-queue.h"
 #include "samples-routing-packet.h"
 #include "samples-routing-channel.h"
+#include "samples-routing-node.h"
 #include <queue>
 
 namespace ns3
 {
+    template <typename Item>
+    class Queue;
     class SamplesRoutingPacket;
     class SamplesRoutingQueue;
     class SamplesRoutingChannel;
-    template <typename Item>
-    class Queue;
+    class SamplesRoutingNode;
 
     /**
      * \ingroup samples-routing
@@ -83,6 +84,9 @@ namespace ns3
          * \return true if the operation was successful (always true actually)
          */
         bool Attach(Ptr<SamplesRoutingChannel> ch);
+
+        typedef Callback<void,Ptr<SamplesRoutingPacket>> ReceiveCallback;
+        void SetRxCallBack(ReceiveCallback cb);
 
         /**
          * Attach a queue to the SamplesRoutingNetDevice.
@@ -153,6 +157,9 @@ namespace ns3
         virtual bool SendFrom(Ptr<Packet> packet, const Address &source, const Address &dest,
                               uint16_t protocolNumber);
 
+        Ptr<SamplesRoutingNode> GetNode(void);
+        void SetNode(Ptr<SamplesRoutingNode> node);
+
         virtual Ptr<Node> GetNode(void) const;
         virtual void SetNode(Ptr<Node> node);
 
@@ -160,7 +167,7 @@ namespace ns3
 
         virtual Address GetMulticast(Ipv6Address addr) const;
 
-        virtual void SetPromiscReceiveCallback(PromiscReceiveCallback cb);
+        virtual void SetPromiscReceiveCallback(NetDevice::PromiscReceiveCallback cb);
         virtual bool SupportsSendFrom(void) const;
 
         DataRate GetDataRate() const;
@@ -173,14 +180,16 @@ namespace ns3
          */
         Address GetRemote (void) const;
 
+
     private:
         Ptr<SamplesRoutingQueue> m_queue;
         Ptr<SamplesRoutingChannel> m_channel;
-        Ptr<Node> m_node;
+        Ptr<SamplesRoutingNode> m_node;
         DataRate m_rate;
         Mac48Address m_address; //!< Mac48Address of this NetDevice
         bool m_isBusy;
         bool m_isLinkUp;
+        ReceiveCallback m_receiveCallback;
 
         NetDevice::ReceiveCallback m_rxCallback; //!< Receive callback
         //some values
