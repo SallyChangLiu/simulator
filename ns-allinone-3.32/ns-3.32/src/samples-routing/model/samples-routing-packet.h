@@ -27,6 +27,7 @@
 #include "ns3/simulator.h"
 #include "ns3/network-module.h"
 #include "ns3/packet.h"
+#include <string>
 
 namespace ns3
 {
@@ -49,6 +50,11 @@ namespace ns3
           * \param dIP destination IP
           */
     SamplesRoutingPacket(uint32_t psize, Ipv4Address sIP, Ipv4Address dIP);
+
+    /**
+     * \brief Dispose of the object
+     */
+    virtual void DoDispose(void);
 
     /**
      * set packet size
@@ -122,12 +128,17 @@ namespace ns3
      */
     Time GetInTime();
 
+    void SetName(std::string name);
+
+    std::string GetName();
+
   private:
     uint32_t m_size;
     Ipv4Address m_sIp, m_dIp; //!< source IP, dst IP
     uint32_t m_hopCount;
     Time m_createTime;
     Time m_inTime; //packet inqueue time stamp
+    std::string m_name;
   };
 } // namespace ns3
 #endif

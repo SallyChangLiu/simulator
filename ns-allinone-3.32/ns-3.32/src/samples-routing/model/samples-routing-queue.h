@@ -40,11 +40,18 @@ namespace ns3
         SamplesRoutingQueue();
         ~SamplesRoutingQueue();
 
+        /**
+         * \brief Dispose of the object
+         */
+        virtual void DoDispose (void);
+
 
         Ptr<SamplesRoutingPacket> DequeuePkg();
         void InqueuPkg(Ptr<SamplesRoutingPacket> p);
 
         uint32_t GetQueueLength();
+
+        void SetCapacity(uint32_t capacity);
 
     private:
         std::vector<Ptr<SamplesRoutingPacket>> m_queue;

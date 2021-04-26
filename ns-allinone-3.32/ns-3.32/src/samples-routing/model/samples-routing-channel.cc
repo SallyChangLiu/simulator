@@ -42,6 +42,14 @@ namespace ns3
         NS_LOG_FUNCTION_NOARGS();
     }
 
+    void SamplesRoutingChannel::DoDispose()
+    {
+        NS_LOG_FUNCTION(this);
+        m_delay = Time(0);
+        m_nDevices = 0;
+        Object::DoDispose();
+    }
+
     void
     SamplesRoutingChannel::Attach(Ptr<SamplesRoutingNetDevice> device)
     {
@@ -65,7 +73,7 @@ namespace ns3
 
     bool
     SamplesRoutingChannel::TransmitStart(Ptr<SamplesRoutingPacket> p, Ptr<SamplesRoutingNetDevice> src, Time txTime)
-    {
+    {NS_LOG_UNCOND("\nin channel transmit start");
         NS_LOG_FUNCTION(this << p << src);
 
         NS_ASSERT(m_link[0].m_state != INITIALIZING);

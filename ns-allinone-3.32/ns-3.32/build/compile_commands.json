@@ -481,7 +481,7 @@
   },
   {
     "directory": "/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build",
-    "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 ../src/network/model/application.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/src/network/model/application.cc.1.o",
+    "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 -DNS3_ENABLE_EXAMPLES ../src/network/model/application.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/src/network/model/application.cc.1.o",
     "file": "../src/network/model/application.cc"
   },
   {
@@ -4688,5 +4688,25 @@
     "directory": "/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build",
     "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -pthread -I. -I.. -I/usr/include/libxml2 -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 -DNS3_ENABLE_EXAMPLES ../scratch/lc-test.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/scratch/lc-test.cc.2.o",
     "file": "../scratch/lc-test.cc"
+  },
+  {
+    "directory": "/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build",
+    "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 -DNS3_ENABLE_EXAMPLES ../src/samples-routing/model/samples-routing.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/src/samples-routing/model/samples-routing.cc.1.o",
+    "file": "../src/samples-routing/model/samples-routing.cc"
+  },
+  {
+    "directory": "/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build",
+    "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 -DNS3_ENABLE_EXAMPLES ../src/samples-routing/helper/samples-routing-helper.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/src/samples-routing/helper/samples-routing-helper.cc.1.o",
+    "file": "../src/samples-routing/helper/samples-routing-helper.cc"
+  },
+  {
+    "directory": "/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build",
+    "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -I../src/samples-routing -fPIC -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 -DNS3_ENABLE_EXAMPLES '-DNS_TEST_SOURCEDIR=\"src/samples-routing/test\"' ../src/samples-routing/test/samples-routing-test-suite.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/src/samples-routing/test/samples-routing-test-suite.cc.3.o",
+    "file": "../src/samples-routing/test/samples-routing-test-suite.cc"
+  },
+  {
+    "directory": "/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build",
+    "command": "/usr/bin/g++ -O0 -ggdb -g3 -Wall -Werror -std=c++11 -fstrict-aliasing -Wstrict-aliasing -pthread -I. -I.. -DNS3_BUILD_PROFILE_DEBUG -DNS3_ASSERT_ENABLE -DNS3_LOG_ENABLE -DHAVE_SYS_IOCTL_H=1 -DHAVE_IF_NETS_H=1 -DHAVE_NET_ETHERNET_H=1 -DHAVE_PACKET_H=1 -DHAVE_SEMAPHORE_H=1 -DHAVE_IF_TUN_H=1 -DHAVE_GSL=1 -DNS3_ENABLE_EXAMPLES ../src/samples-routing/examples/samples-routing-example.cc -c -o/home/liuchang/workspace/ns-allinone-3.32/ns-3.32/build/src/samples-routing/examples/samples-routing-example.cc.1.o",
+    "file": "../src/samples-routing/examples/samples-routing-example.cc"
   }
 ]

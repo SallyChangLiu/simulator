@@ -26,6 +26,8 @@
 #include "samples-routing-router.h"
 #include "samples-routing-app.h"
 #include "ns3/ipv4-address.h"
+#include <vector>
+#include <string>
 
 namespace ns3
 {
@@ -61,6 +63,11 @@ namespace ns3
          */
         ~SamplesRoutingNode();
 
+        /**
+         * \brief Dispose of the object
+         */
+        virtual void DoDispose (void);
+
         void SetAddress(Ipv4Address addr);
         
         Ipv4Address GetAddress();
@@ -69,9 +76,20 @@ namespace ns3
 
         Ptr<SamplesRoutingRouter> GetRouter();
         
+        uint32_t AddApplication(Ptr<SamplesRoutingApp> application);
+
+        uint32_t AddDevice(Ptr<SamplesRoutingNetDevice> device);
+
+        void SetName(std::string name);
+
+        std::string GetName();
+        
     private:
         Ipv4Address m_address;
         Ptr<SamplesRoutingRouter> m_router;
+        std::vector<Ptr<NetDevice> > m_devices; //!< Devices associated to this node
+        std::vector<Ptr<Application> > m_applications; //!< Applications associated to this node
+        std::string m_name;
     };
 } // namespace ns3
 #endif

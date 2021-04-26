@@ -24,6 +24,7 @@
 
 #include "samples-routing-net-device.h"
 #include "samples-routing-packet.h"
+#include "ns3/channel.h"
 
 namespace ns3
 {
@@ -47,6 +48,12 @@ namespace ns3
          * transmission speed and zero delay.
          */
         SamplesRoutingChannel ();
+
+        /**
+         * \brief Dispose of the object
+         */
+        virtual void DoDispose (void);
+
         /**
          * \brief Attach a given queue to this channel
          * \param queue pointer to the queue to attach to the channel

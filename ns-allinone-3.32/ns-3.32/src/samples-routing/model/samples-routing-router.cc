@@ -56,10 +56,19 @@ namespace ns3
         m_routerTable.clear();
     }
 
-    void SamplesRoutingRouter::HandleMsg(Ptr<SamplesRoutingPacket> p)
+    void SamplesRoutingRouter::DoDispose()
     {
-        Ipv4Address destIp = p->GetDstIp();
+        NS_LOG_FUNCTION(this);
+        m_node = 0;
+        m_routerTable.clear();
+        m_dropBytes = 0;
+        Object::DoDispose();
+    }
 
+    void SamplesRoutingRouter::HandleMsg(Ptr<SamplesRoutingPacket> p)
+    {NS_LOG_UNCOND("\nin router handleMSg");
+        Ipv4Address destIp = p->GetDstIp();
+        
         if (destIp == m_node->GetAddress()) //send to app receiver
         {
             //TODO:record the outputIf of the packet
@@ -70,8 +79,8 @@ namespace ns3
             srand((unsigned)time(NULL));
 
             uint32_t idx = rand() % (m_routerTable[destIp].size());
-
             Ptr<SamplesRoutingNetDevice> dev = m_routerTable[destIp][idx];
+            p->SetHopCount(p->GetHopCount()+1);
             //TODO:record the outputIf of the packet
             dev->TransmitStart(p);
         }

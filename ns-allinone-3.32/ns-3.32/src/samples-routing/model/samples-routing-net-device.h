@@ -78,6 +78,11 @@ namespace ns3
         ~SamplesRoutingNetDevice();
 
         /**
+         * \brief Dispose of the object
+         */
+        virtual void DoDispose (void);
+
+        /**
          * Attach the device to a channel.
          *
          * \param ch Ptr to the channel to which this object is being attached.
@@ -157,8 +162,8 @@ namespace ns3
         virtual bool SendFrom(Ptr<Packet> packet, const Address &source, const Address &dest,
                               uint16_t protocolNumber);
 
-        Ptr<SamplesRoutingNode> GetNode(void);
-        void SetNode(Ptr<SamplesRoutingNode> node);
+        Ptr<SamplesRoutingNode> GetSNode(void);
+        void SetSNode(Ptr<SamplesRoutingNode> node);
 
         virtual Ptr<Node> GetNode(void) const;
         virtual void SetNode(Ptr<Node> node);

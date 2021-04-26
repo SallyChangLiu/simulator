@@ -53,8 +53,20 @@ namespace ns3
         m_queue.clear();
     }
 
-    Ptr<SamplesRoutingPacket> SamplesRoutingQueue::DequeuePkg()
+    void SamplesRoutingQueue::DoDispose()
     {
+        NS_LOG_FUNCTION(this);
+        m_queue.clear();
+        m_rxBytes = 0;
+        m_txBytes = 0;
+        m_dev = 0;
+        m_dropBytes = 0;
+        m_frameCapacity = 0;
+        Object::DoDispose();
+    }
+
+    Ptr<SamplesRoutingPacket> SamplesRoutingQueue::DequeuePkg()
+    {NS_LOG_UNCOND("\n in queue dequeue pkg");
         if (m_queue.size() > 0)
         {
             Ptr<SamplesRoutingPacket> p = m_queue.front();
@@ -68,7 +80,7 @@ namespace ns3
         }
     }
     void SamplesRoutingQueue::InqueuPkg(Ptr<SamplesRoutingPacket> p)
-    {
+    {NS_LOG_UNCOND("\nin queue inqueue pkg");
         if (m_frameCapacity && m_queue.size() >= m_frameCapacity) //transmitter busy and queue full: discarding
         {
             m_dropBytes += p->GetSize();
@@ -89,5 +101,10 @@ namespace ns3
         NS_LOG_FUNCTION(this);
 
         return m_queue.size();
+    }
+
+    void SamplesRoutingQueue::SetCapacity(uint32_t capacity)
+    {
+        m_frameCapacity = capacity;
     }
 } // namespace ns3

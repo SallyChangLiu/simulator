@@ -70,6 +70,14 @@ namespace ns3
         NS_LOG_FUNCTION(this);
     }
 
+    void SamplesRoutingNetDevice::DoDispose()
+    {
+        NS_LOG_FUNCTION(this);
+        m_node = 0;
+        m_queue = 0;
+        NetDevice::DoDispose();
+    }
+
     bool SamplesRoutingNetDevice::Attach(Ptr<SamplesRoutingChannel> ch)
     {
         NS_LOG_FUNCTION(this << &ch);
@@ -95,13 +103,13 @@ namespace ns3
     }
 
     void SamplesRoutingNetDevice::TransmitStart(Ptr<SamplesRoutingPacket> p)
-    {
+    {NS_LOG_UNCOND("\nin dev transmit start");
         NS_LOG_FUNCTION(this << p);
         if (m_isBusy == false) //we are not busy can send the packet right now
         {
             m_isBusy = true;
             Time txTime = m_rate.CalculateBytesTxTime(p->GetSize());
-
+            
             Simulator::Schedule(txTime, &SamplesRoutingNetDevice::CompleteTransimit, this);
             //TODO:call for channel transmit func
             m_channel->TransmitStart(p, this, txTime);
@@ -113,7 +121,7 @@ namespace ns3
     }
 
     void SamplesRoutingNetDevice::CompleteTransimit()
-    {
+    {NS_LOG_UNCOND("\nin dev complete trans");
         m_isBusy = false;
 
         if (m_queue->GetQueueLength() > 0)
@@ -125,7 +133,7 @@ namespace ns3
     }
 
     void SamplesRoutingNetDevice::Receive(Ptr<SamplesRoutingPacket> p)
-    {
+    {NS_LOG_UNCOND("\n in dev receive");
         NS_LOG_FUNCTION(this << p);
 
         //TODO: rigister call back (app receiver)
@@ -255,14 +263,14 @@ namespace ns3
         return false;
     }
 
-    void SamplesRoutingNetDevice::SetNode(Ptr<SamplesRoutingNode> node)
+    void SamplesRoutingNetDevice::SetSNode(Ptr<SamplesRoutingNode> node)
     {
         NS_LOG_FUNCTION(this);
         m_node = node;
     }
 
     Ptr<SamplesRoutingNode>
-    SamplesRoutingNetDevice::GetNode(void)
+    SamplesRoutingNetDevice::GetSNode(void)
     {
         return m_node;
     }

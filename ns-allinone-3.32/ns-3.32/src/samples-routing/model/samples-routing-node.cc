@@ -52,6 +52,15 @@ namespace ns3
         NS_LOG_FUNCTION_NOARGS();
     }
 
+    void SamplesRoutingNode::DoDispose()
+    {
+        NS_LOG_FUNCTION(this);
+        m_router = 0;
+        m_applications.clear();
+        m_devices.clear();
+        Node::DoDispose();
+    }
+
     void SamplesRoutingNode::SetAddress(Ipv4Address addr)
     {
         NS_LOG_FUNCTION(addr);
@@ -73,5 +82,36 @@ namespace ns3
     Ptr<SamplesRoutingRouter> SamplesRoutingNode::GetRouter()
     {
         return m_router;
+    }
+
+    uint32_t SamplesRoutingNode::AddApplication(Ptr<SamplesRoutingApp> application)
+    {
+        NS_LOG_FUNCTION (this << application);
+        uint32_t index = m_applications.size ();
+        m_applications.push_back (application);
+        application->SetNode (this);
+        
+        return index;
+    }
+
+    uint32_t SamplesRoutingNode::AddDevice(Ptr<SamplesRoutingNetDevice> device)
+    {
+        NS_LOG_FUNCTION (this << device);
+        uint32_t index = m_devices.size ();
+        m_devices.push_back (device);
+        device->SetSNode (this);
+        device->SetIfIndex (index);
+        
+        return index;   
+    }
+
+    void SamplesRoutingNode::SetName(std::string name)
+    {
+        m_name = name;
+    }
+
+    std::string SamplesRoutingNode::GetName()
+    {
+        return m_name;
     }
 }

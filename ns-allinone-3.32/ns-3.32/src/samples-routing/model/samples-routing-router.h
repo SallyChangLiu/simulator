@@ -66,6 +66,11 @@ namespace ns3
         virtual ~SamplesRoutingRouter();
 
         /**
+         * \brief Dispose of the object
+         */
+        virtual void DoDispose (void);
+
+        /**
          * send a packet
          * \param p the packet that needs to be sent.
          */

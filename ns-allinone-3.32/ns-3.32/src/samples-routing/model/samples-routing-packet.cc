@@ -52,6 +52,18 @@ namespace ns3
         NS_LOG_FUNCTION(this << psize << sIP << dIP);
     }
 
+    void SamplesRoutingPacket::DoDispose()
+    {
+        NS_LOG_FUNCTION(this);
+        m_createTime = Time(0);
+        m_dIp = 0;
+        m_hopCount = 0;
+        m_inTime = Time(0);
+        m_size = 0;
+        m_sIp = 0;
+        Object::DoDispose();
+    }
+
     void SamplesRoutingPacket::SetSize(uint32_t psiz)
     {
         NS_LOG_FUNCTION(psiz);
@@ -122,5 +134,16 @@ namespace ns3
     Time SamplesRoutingPacket::GetInTime()
     {
         return m_inTime;
+    }
+
+    void SamplesRoutingPacket::SetName(std::string name)
+    {
+        NS_LOG_FUNCTION(name);
+        m_name = name;
+    }
+
+    std::string SamplesRoutingPacket::GetName()
+    {
+        return m_name;
     }
 } // namespace ns3

@@ -31,6 +31,7 @@
 #include "samples-routing-net-device.h"
 #include "samples-routing-router.h"
 #include "samples-routing-node.h"
+#include "samples-routing.h"
 #include <vector>
 
 namespace ns3
@@ -58,10 +59,9 @@ namespace ns3
         virtual ~SamplesRoutingApp();
 
         /**
-         * setup router for node
-         * \param r the router
+         * \brief Dispose of the object
          */
-        void SetRouter(Ptr<SamplesRoutingRouter> r);
+        virtual void DoDispose (void);
 
         void SetSendInterval(Time t);
 
@@ -107,7 +107,6 @@ namespace ns3
 
         std::vector<Ipv4Address> m_destAddress; //vector for pacekt destIP
         Ptr<SamplesRoutingNode> m_node;
-        Ptr<SamplesRoutingRouter> m_router;
         Time m_sentInterval;
     };
 

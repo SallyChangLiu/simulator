@@ -19,13 +19,17 @@
 #include "ns3/samples-routing-module.h"
 #include "ns3/callback.h"
 
+#include <boost/bimap.hpp>
+
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("Samples Routing Test");
 
+boost::bimap<Ipv4Address,std::string> Addr2Name;
+
 int main(int argc, char *argv[])
 {
-    NS_LOG_UNCOND("Samples Routing Test");
+    NS_LOG_UNCOND("in Samples Routing Test");
 
     /**
      * host 1 --100Gbps-- host3 --1bps-- host 2
@@ -35,6 +39,11 @@ int main(int argc, char *argv[])
     auto host1 = CreateObject<SamplesRoutingNode>(Ipv4AddressGenerator::NextAddress(Ipv4Mask("255.0.0.0")));
     auto host2 = CreateObject<SamplesRoutingNode>(Ipv4AddressGenerator::NextAddress(Ipv4Mask("255.0.0.0"))); // host 2
     auto host3 = CreateObject<SamplesRoutingNode>(Ipv4AddressGenerator::NextAddress(Ipv4Mask("255.0.0.0"))); // host 3
+
+    Addr2Name.insert({host1->GetAddress(),"host1"});
+    Addr2Name.insert({host2->GetAddress(),"host2"});
+    Addr2Name.insert({host3->GetAddress(),"host3"});
+
 
     //app
     auto h1_app = CreateObject<SamplesRoutingApp>();
@@ -78,25 +87,35 @@ int main(int argc, char *argv[])
     h3_h1_dev->SetDataRate(DataRate("100Gbps"));
     h3_h2_dev->SetDataRate(DataRate("1bps"));
 
-    ch1->Attach(h1_dev);
-    ch1->Attach(h3_h1_dev);
-    ch2->Attach(h3_h2_dev);
-    ch2->Attach(h2_dev);
     ch1->SetDelay(Time("1us"));
     ch2->SetDelay(Time("2us"));
+    h1_dev->Attach(ch1);
+    h3_h1_dev->Attach(ch1);
+    h2_dev->Attach(ch2);
+    h3_h2_dev->Attach(ch2);
 
     host1->AddDevice(h1_dev);
     host2->AddDevice(h2_dev);
     host3->AddDevice(h3_h1_dev);
     host3->AddDevice(h3_h2_dev);
+    h1_dev->SetNode(host1);
+    h2_dev->SetNode(host2);
+    h3_h1_dev->SetNode(host3);
+    h3_h2_dev->SetNode(host3);
 
     host1->AddApplication(h1_app);
     host2->AddApplication(h2_app);
     host3->AddApplication(h3_app);
-
+    h1_app->SetNode(host1);
+    h2_app->SetNode(host2);
+    h3_app->SetNode(host3);
+    
     host1->AddRouter(h1_r);
     host2->AddRouter(h2_r);
     host3->AddRouter(h3_r);
+
+    
+
 
     //register callback
     h1_r->SetupRxCallBack(MakeCallback(&SamplesRoutingApp::HandleRx, h1_app));
@@ -112,17 +131,19 @@ int main(int argc, char *argv[])
     h1_r->BuildRouterTable(host2->GetAddress(), h1_dev);
     h1_r->BuildRouterTable(host3->GetAddress(), h1_dev);
     h2_r->BuildRouterTable(host1->GetAddress(), h2_dev);
+    h2_r->BuildRouterTable(host3->GetAddress(), h2_dev);
     h3_r->BuildRouterTable(host1->GetAddress(), h3_h1_dev);
     h3_r->BuildRouterTable(host2->GetAddress(), h3_h2_dev);
-
-    h1_app->StartApplication(1500);
-    h2_app->StartApplication(1500);
-    h3_app->StartApplication(1500);
 
     //set dest address
     h1_app->SetupDestAddr(host2->GetAddress());
     h3_app->SetupDestAddr(host2->GetAddress());
     h2_app->SetupDestAddr(host1->GetAddress());
+
+    NS_LOG_UNCOND("\n start app");
+    h1_app->StartApplication(1500);
+    // h2_app->StartApplication(1500);
+    // h3_app->StartApplication(1500);
 
     Simulator::Run();
     Simulator::Destroy();

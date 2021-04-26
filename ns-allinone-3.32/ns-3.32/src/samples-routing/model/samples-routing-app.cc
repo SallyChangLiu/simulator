@@ -26,12 +26,15 @@
 #include "samples-routing-packet.h"
 #include "stdlib.h"
 #include "ctime"
+#include <string>
+#include <cstdio>
+
 
 namespace ns3
 {
     NS_LOG_COMPONENT_DEFINE("SamplesRoutingApp");
     NS_OBJECT_ENSURE_REGISTERED(SamplesRoutingApp);
-
+    
     TypeId
     SamplesRoutingApp::GetTypeId(void)
     {
@@ -54,10 +57,12 @@ namespace ns3
         NS_LOG_FUNCTION_NOARGS();
     }
 
-    void SamplesRoutingApp::SetRouter(Ptr<SamplesRoutingRouter> r)
+    void SamplesRoutingApp::DoDispose()
     {
-        NS_LOG_FUNCTION(this << r);
-        m_router = r;
+        NS_LOG_UNCOND(this);
+        m_node = 0;
+        m_sentInterval = Time(0);
+        Application::DoDispose();
     }
 
     void SamplesRoutingApp::SetSendInterval(Time t)
@@ -78,35 +83,46 @@ namespace ns3
 
     void SamplesRoutingApp::StartApplication(uint32_t psize)
     {
+        NS_LOG_UNCOND("\nin startapplication");
         srand((unsigned)time(NULL));
 
+        if (m_destAddress.size() == 0)
+            return;
         int idx = rand() % (m_destAddress.size());
+
         Ipv4Address destAddr = m_destAddress[idx];
         Ipv4Address myAddr = m_node->GetAddress();
 
         Ptr<SamplesRoutingPacket> p = CreateObject<SamplesRoutingPacket>(psize, myAddr, destAddr);
+        
         p->SetCreateTime(Simulator::Now());
-        m_router->HandleMsg(p);
+        std::string sname = addr2Name.left.at(myAddr);
+        std::string dname = addr2Name.left.at(destAddr);
+        std::string pkgname = "pk-"+sname+"-to-"+dname+"-#"+std::to_string(pkgseq++);
+        
+        p->SetName(pkgname);
 
-        Simulator::Schedule(m_sentInterval, &SamplesRoutingApp::StartApplication, this, psize); //call for next send event
+        m_node->GetRouter()->HandleMsg(p);
+
+        //Simulator::Schedule(m_sentInterval, &SamplesRoutingApp::StartApplication, this, psize); //call for next send event
     }
 
     //TODO:fix
     void SamplesRoutingApp::StopApplication(void)
     {
         m_destAddress.clear();
-        m_router = NULL;
         m_sentInterval = Time(0);
     }
 
     void SamplesRoutingApp::HandleRx(Ptr<SamplesRoutingPacket> p)
     {
+        NS_LOG_UNCOND("\nin app handlereceive");
         m_PacketRxCompleteTrace(p);
     }
 
     void SamplesRoutingApp::SetPkgRxCompleteTraceCallback(TracedCallback<Ptr<SamplesRoutingPacket>> cb)
     {
-         m_PacketRxCompleteTrace = cb;
+        m_PacketRxCompleteTrace = cb;
     }
 
 } // namespace ns3
