@@ -1,0 +1,16 @@
+{
+    "NetName": "Net5",
+    "Number": 5,
+    "AppSendInterval": "1ms",
+    "QueueCapacity": 100,
+    "DataRate": "1Mbps",
+    "seed": 666,
+    "LinkDelayLow": 0.1,
+    "LinkDelayHigh": 1.0,
+    "PacketSize": 1500,
+    "DestinationNode":[
+        "host1",
+        "host2"
+    ],
+    "LinkConfigFile": "ns3_config/Net5/link.csv"
+}

@@ -114,4 +114,14 @@ namespace ns3
     {
         return m_name;
     }
+
+    Ptr<SamplesRoutingApp> SamplesRoutingNode::GetApplication(uint32_t index)
+    {
+        return m_applications[index];
+    }
+
+    uint32_t SamplesRoutingNode::GetAppSize()
+    {
+        return m_applications.size();
+    }
 }

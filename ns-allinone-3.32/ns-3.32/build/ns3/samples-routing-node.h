@@ -31,7 +31,7 @@
 
 namespace ns3
 {
-    class SamplesRoutingNetDevoce;
+    class SamplesRoutingNetDevice;
     class SamplesRoutingRouter;
     class SamplesRoutingApp;
 
@@ -83,12 +83,17 @@ namespace ns3
         void SetName(std::string name);
 
         std::string GetName();
+
+        Ptr<SamplesRoutingApp> GetApplication(uint32_t index);
+
+        uint32_t GetAppSize();
+
         
     private:
         Ipv4Address m_address;
         Ptr<SamplesRoutingRouter> m_router;
-        std::vector<Ptr<NetDevice> > m_devices; //!< Devices associated to this node
-        std::vector<Ptr<Application> > m_applications; //!< Applications associated to this node
+        std::vector<Ptr<SamplesRoutingNetDevice> > m_devices; //!< Devices associated to this node
+        std::vector<Ptr<SamplesRoutingApp> > m_applications; //!< Applications associated to this node
         std::string m_name;
     };
 } // namespace ns3

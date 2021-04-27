@@ -6,5 +6,7 @@ namespace ns3
 {
 
     boost::bimap<Ipv4Address, std::string> addr2Name;//all host ipv4address <----> host name
+    boost::bimap<std::string, Ptr<SamplesRoutingNode>> name2node;
+    std::map<Ptr<SamplesRoutingNode>, std::vector<Ptr<SamplesRoutingNetDevice>>> node2port;
     uint32_t pkgseq = 0;//all packet number
 } // namespace ns3
