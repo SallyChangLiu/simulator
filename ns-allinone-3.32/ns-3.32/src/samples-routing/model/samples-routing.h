@@ -18,6 +18,7 @@ namespace ns3
     extern boost::bimap<std::string, Ptr<SamplesRoutingNode>> name2node;
     extern std::map<Ptr<SamplesRoutingNode>, std::vector<Ptr<SamplesRoutingNetDevice>>> node2port;
     extern uint32_t pkgseq;
+    extern uint32_t MTU;
 }
 
 #endif /* SAMPLES_ROUTING_H */

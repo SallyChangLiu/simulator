@@ -9,4 +9,5 @@ namespace ns3
     boost::bimap<std::string, Ptr<SamplesRoutingNode>> name2node;
     std::map<Ptr<SamplesRoutingNode>, std::vector<Ptr<SamplesRoutingNetDevice>>> node2port;
     uint32_t pkgseq = 0;//all packet number
+    uint32_t MTU= 1500;//default packet size
 } // namespace ns3

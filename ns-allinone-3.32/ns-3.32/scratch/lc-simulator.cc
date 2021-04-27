@@ -28,26 +28,33 @@ struct Interface
     DataRate bandwidth;
     uint64_t queueSize;
 };
-std::map<Ptr<Node>, std::map<Ptr<Node>, Interface>> onewayOutDev;
-std::map<Ptr<Node>, std::map<Ptr<Node>, std::vector<Ptr<Node>>>> nextHopTable;
-std::map<Ptr<Node>, std::map<Ptr<Node>, Time>> pairDelay;
-std::map<Ptr<Node>, std::map<Ptr<Node>, Time>> pairTxDelay;
-std::map<Ptr<Node>, std::map<Ptr<Node>, Time>> pairQueueTxDelay;
-std::map<Ptr<Node>, std::map<Ptr<Node>, DataRate>> pairBandwidth;
+std::map<Ptr<SamplesRoutingNode>, std::map<Ptr<SamplesRoutingNode>, Interface>> onewayOutDev;
+std::map<Ptr<SamplesRoutingNode>, std::map<Ptr<SamplesRoutingNode>, std::vector<Ptr<SamplesRoutingNode>>>> nextHopTable;
+std::map<Ptr<SamplesRoutingNode>, std::map<Ptr<SamplesRoutingNode>, Time>> pairDelay;
+std::map<Ptr<SamplesRoutingNode>, std::map<Ptr<SamplesRoutingNode>, Time>> pairTxDelay;
+std::map<Ptr<SamplesRoutingNode>, std::map<Ptr<SamplesRoutingNode>, DataRate>> pairBandwidth;
 
 /***************************************
  * Help functions for simulation setup *
  ***************************************/
 
 //configure
-void ConfigForNet5(const json &globalConf);
+void ConfigForNet5(const json &conf);
 
 //setup router table
+void CalculateRoute();
+void CalculateRoute(Ptr<SamplesRoutingNode> host);
+void SetRoutingEntries();
 
-NS_LOG_COMPONENT_DEFINE("SIMULATION");
+//setup destination for app sending packet
+void Start(const json &conf);
+
+NS_LOG_COMPONENT_DEFINE("LC-SIMULATION");
 
 int main(int argc, char *argv[])
 {
+    LogComponentEnable("LC-SIMULATION", LOG_INFO);
+    
     if (argc < 2)
     {
         NS_LOG_UNCOND("ERROR: No config file");
@@ -59,6 +66,16 @@ int main(int argc, char *argv[])
     json conf = json::parse(file);
 
     NS_LOG_UNCOND("=======HOST=======");
+    ConfigForNet5(conf);
+    NS_LOG_UNCOND("=======router=======");
+    CalculateRoute();
+    SetRoutingEntries();
+    NS_LOG_UNCOND("=======start=======");
+    //Start(conf);
+
+    Simulator::Run();
+    Simulator::Stop(Time("2s"));
+    Simulator::Destroy();
 }
 
 /***************************************
@@ -82,7 +99,7 @@ void ConfigForNet5(const json &conf)
         Time sendInterval = Time(time);
         app->SetSendInterval(sendInterval);
         node->AddApplication(app);
-
+        node->AggregateObject(app);
         //router
         Ptr<SamplesRoutingRouter> router = CreateObject<SamplesRoutingRouter>();
         node->AddRouter(router);
@@ -139,6 +156,16 @@ void ConfigForNet5(const json &conf)
         //register callback
         sdev->SetRxCallBack(MakeCallback(&SamplesRoutingRouter::HandleMsg, snode->GetRouter()));
         ddev->SetRxCallBack(MakeCallback(&SamplesRoutingRouter::HandleMsg, dnode->GetRouter()));
+
+        //setup onewayOutDev
+        onewayOutDev[snode][dnode] = {
+            .device = sdev,
+            .delay = delay,
+            .bandwidth = dev_rate};
+        onewayOutDev[dnode][snode] = {
+            .device = ddev,
+            .delay = delay,
+            .bandwidth = dev_rate};
     }
 
     //setup dev for every node
@@ -173,4 +200,98 @@ void ConfigForNet5(const json &conf)
             app_nodename = "";
         }
     }
+}
+
+/*********************
+ * Route calculation *
+ *********************/
+void CalculateRoute()
+{
+    for (uint32_t i = 0; i < name2node.size(); i++)
+    {
+        std::string name = "host" + std::to_string(i);
+        const auto host = name2node.left.at(name);
+
+        CalculateRoute(host);
+    }
+}
+
+void CalculateRoute(Ptr<SamplesRoutingNode> host)
+{
+    std::vector<Ptr<SamplesRoutingNode>> bfsQueue;          // Queue for the BFS
+    std::map<Ptr<SamplesRoutingNode>, int> distances;       // Distance from the host to each node
+    std::map<Ptr<SamplesRoutingNode>, Time> delays;         // Delay from the host to each node
+    std::map<Ptr<SamplesRoutingNode>, Time> txDelays;       // Transmit delay from the host to each node
+    std::map<Ptr<SamplesRoutingNode>, DataRate> bandwidths; // Bandwidth from the host to each node
+    // Init BFS
+    bfsQueue.push_back(host);
+    distances[host] = 0;
+    delays[host] = Time(0);
+    txDelays[host] = Time(0);
+    bandwidths[host] = DataRate(UINT64_MAX);
+    // Do BFS
+    for (size_t i = 0; i < bfsQueue.size(); i++)
+    {
+        const auto currNode = bfsQueue[i];
+        for (const auto &next : onewayOutDev[currNode])
+        {
+            const auto nextNode = next.first;
+            const auto nextInterface = next.second;
+            // If 'nextNode' have not been visited.
+            if (distances.find(nextNode) == distances.end())
+            {
+                distances[nextNode] = distances[currNode] + 1;
+                delays[nextNode] = delays[currNode] + nextInterface.delay;
+                txDelays[nextNode] =
+                    txDelays[currNode] + nextInterface.bandwidth.CalculateBytesTxTime(MTU);
+                bandwidths[nextNode] = std::min(bandwidths[currNode], nextInterface.bandwidth);
+
+                bfsQueue.push_back(nextNode);
+            }
+            // if 'currNode' is on the shortest path from 'nextNode' to 'host'.
+            if (distances[currNode] + 1 == distances[nextNode])
+            {
+                nextHopTable[nextNode][host].push_back(currNode);
+            }
+        }
+    }
+    for (const auto &it : delays)
+        pairDelay[it.first][host] = it.second;
+    for (const auto &it : txDelays)
+        pairTxDelay[it.first][host] = it.second;
+    for (const auto &it : bandwidths)
+        pairBandwidth[it.first][host] = it.second;
+}
+
+void SetRoutingEntries()
+{
+    // For each node
+    for (const auto &nextHopEntry : nextHopTable)
+    {
+        const auto fromNode = nextHopEntry.first;
+        const auto toNodeTable = nextHopEntry.second;
+        for (const auto &toNodeEntry : toNodeTable)
+        {
+            // The destination node
+            const auto toNode = toNodeEntry.first;
+            // The next hops towards the destination
+            const auto nextNodeTable = toNodeEntry.second;
+            // The IP address of the destination
+            Ipv4Address dstAddr = toNode->GetAddress();
+            for (const auto &nextNode : nextNodeTable)
+            {
+                const auto device = onewayOutDev[fromNode][nextNode].device;
+
+                const auto router = fromNode->GetRouter();
+                router->BuildRouterTable(dstAddr, device);
+            }
+        }
+    }
+}
+
+void Start(const json &conf)
+{
+    std::string name = "host4";
+    const auto node = name2node.left.at(name);
+    const auto app = node->GetApplication(0);
 }

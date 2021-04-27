@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     h2_app->SetupDestAddr(host1->GetAddress());
 
     NS_LOG_UNCOND("\n start app");
-    h1_app->StartApplication(1500);
+    //h1_app->StartApplication(1500);
     // h2_app->StartApplication(1500);
     // h3_app->StartApplication(1500);
 

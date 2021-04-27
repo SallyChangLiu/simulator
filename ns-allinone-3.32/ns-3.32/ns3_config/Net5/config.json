@@ -7,7 +7,6 @@
     "seed": 666,
     "LinkDelayLow": 0.1,
     "LinkDelayHigh": 1.0,
-    "PacketSize": 1500,
     "DestinationNode":[
         "host1",
         "host2"

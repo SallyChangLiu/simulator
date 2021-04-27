@@ -103,7 +103,7 @@ namespace ns3
     }
 
     void SamplesRoutingNetDevice::TransmitStart(Ptr<SamplesRoutingPacket> p)
-    {NS_LOG_UNCOND("\nin dev transmit start");
+    {
         NS_LOG_FUNCTION(this << p);
         if (m_isBusy == false) //we are not busy can send the packet right now
         {
@@ -121,7 +121,7 @@ namespace ns3
     }
 
     void SamplesRoutingNetDevice::CompleteTransimit()
-    {NS_LOG_UNCOND("\nin dev complete trans");
+    {
         m_isBusy = false;
 
         if (m_queue->GetQueueLength() > 0)

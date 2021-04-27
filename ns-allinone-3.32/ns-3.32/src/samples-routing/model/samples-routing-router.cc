@@ -66,7 +66,7 @@ namespace ns3
     }
 
     void SamplesRoutingRouter::HandleMsg(Ptr<SamplesRoutingPacket> p)
-    {NS_LOG_UNCOND("\nin router handleMSg");
+    {
         Ipv4Address destIp = p->GetDstIp();
         
         if (destIp == m_node->GetAddress()) //send to app receiver

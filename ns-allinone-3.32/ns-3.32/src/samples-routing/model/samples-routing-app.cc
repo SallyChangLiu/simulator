@@ -65,6 +65,18 @@ namespace ns3
         Application::DoDispose();
     }
 
+    void
+    SamplesRoutingApp::DoInitialize (void)
+    {
+        NS_LOG_FUNCTION (this);
+        m_startEvent = Simulator::Schedule (m_startTime, &SamplesRoutingApp::StartApplication, this);
+        if (m_stopTime != TimeStep (0))
+            {
+            m_stopEvent = Simulator::Schedule (m_stopTime, &SamplesRoutingApp::StopApplication, this);
+            }
+        Application::DoInitialize ();
+    }
+
     void SamplesRoutingApp::SetSendInterval(Time t)
     {
         NS_LOG_FUNCTION(this << t);
@@ -81,9 +93,9 @@ namespace ns3
         m_destAddress.push_back(dstaddr);
     }
 
-    void SamplesRoutingApp::StartApplication(uint32_t psize)
+    void SamplesRoutingApp::StartApplication()
     {
-        NS_LOG_UNCOND("\nin startapplication");
+        NS_LOG_FUNCTION(this);
         srand((unsigned)time(NULL));
 
         if (m_destAddress.size() == 0)
@@ -93,7 +105,7 @@ namespace ns3
         Ipv4Address destAddr = m_destAddress[idx];
         Ipv4Address myAddr = m_node->GetAddress();
 
-        Ptr<SamplesRoutingPacket> p = CreateObject<SamplesRoutingPacket>(psize, myAddr, destAddr);
+        Ptr<SamplesRoutingPacket> p = CreateObject<SamplesRoutingPacket>(MTU, myAddr, destAddr);
         
         p->SetCreateTime(Simulator::Now());
         std::string sname = addr2Name.left.at(myAddr);
@@ -116,7 +128,8 @@ namespace ns3
 
     void SamplesRoutingApp::HandleRx(Ptr<SamplesRoutingPacket> p)
     {
-        NS_LOG_UNCOND("\nin app handlereceive");
+        NS_LOG_FUNCTION(this);
+
         m_PacketRxCompleteTrace(p);
     }
 

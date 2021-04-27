@@ -40,7 +40,7 @@ namespace ns3
     class SamplesRoutingRouter;
     class SamplesRoutingPacket;
     class SamplesRoutingNode;
-    
+
     /**
      * \ingroup samples-routing
      * \brief The samples-routing-app class is used for generating pacekts
@@ -57,11 +57,6 @@ namespace ns3
 
         SamplesRoutingApp();
         virtual ~SamplesRoutingApp();
-
-        /**
-         * \brief Dispose of the object
-         */
-        virtual void DoDispose (void);
 
         void SetSendInterval(Time t);
 
@@ -82,12 +77,15 @@ namespace ns3
          * This method should be overridden by all or most application
          * subclasses.
          */
-        void StartApplication(uint32_t psize);
+        void StartApplication();
 
         void SetPkgRxCompleteTraceCallback(TracedCallback<Ptr<SamplesRoutingPacket>> cb);
 
-    private:
+    protected:
+        virtual void DoDispose(void);
+        virtual void DoInitialize(void);
 
+    private:
         /**
          * \brief Application specific shutdown code
          *
@@ -103,7 +101,6 @@ namespace ns3
          * \param Ptr pointer of packet
          */
         TracedCallback<Ptr<SamplesRoutingPacket>> m_PacketRxCompleteTrace;
-
 
         std::vector<Ipv4Address> m_destAddress; //vector for pacekt destIP
         Ptr<SamplesRoutingNode> m_node;
